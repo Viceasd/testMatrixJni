@@ -142,8 +142,8 @@ public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCall
 //			}
 //			Log.i("FrameData: ",salidaPixeles);
 
-            Log.i("largo FrameData", String.valueOf(FrameData.length)); // 3110400
-			Log.i("largo pixels", String.valueOf(pixels.length)); // 3.686.400
+//            Log.i("largo FrameData", String.valueOf(FrameData.length)); // 3110400
+//			Log.i("largo pixels", String.valueOf(pixels.length)); // 3.686.400
         	bProcessing = true;
             stringFromJNI(PreviewSizeWidth, PreviewSizeHeight, FrameData, pixels);
 			salidaPixeles="";
@@ -156,7 +156,7 @@ public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCall
 //				salidaPixeles = salidaPixeles+String.valueOf(FrameData[i])+",";
 //
 //			}
-			Log.i("FrameData1 ",salidaPixeles);
+//			Log.i("FrameData1 ",salidaPixeles);
 
 			bitmap.setPixels(pixels, 0, PreviewSizeWidth, 0, 0, PreviewSizeWidth, PreviewSizeHeight);
 			MyCameraPreview.setImageBitmap(bitmap);

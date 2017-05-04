@@ -80,9 +80,10 @@ public class MainActivity extends Activity {
 //        file = new File(getApplicationContext().getFilesDir(), "matrix_view");
 //        file = new File(Environment.getExternalStorageDirectory() + File.separator
 //                + Environment.DIRECTORY_DCIM + File.separator + "FILE_NAME");
-        file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + File.separator+ "test.mp4");
+//        file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + File.separator+ "test.mp4");
 
-        file=new File("/sdcard/test.mp4");
+//        file=new File("/mnt/sdcard/test.mp4");
+        file = new File(Environment.getExternalStorageDirectory(), "Notes");
         mrec = new MediaRecorder();
         mrec.setVideoSource(MediaRecorder.VideoSource.CAMERA);
         mrec.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -95,6 +96,7 @@ public class MainActivity extends Activity {
         mrec.setOutputFile(file.getPath());
         mrec.setPreviewDisplay(camHolder.getSurface());
         if (mrec != null) {
+
             try {
                 mrec.prepare();
 
