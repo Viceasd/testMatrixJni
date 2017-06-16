@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
+import android.media.CamcorderProfile;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -14,6 +15,7 @@ import android.view.SurfaceHolder;
 import android.widget.ImageView;
 
 import java.io.IOException;
+import java.util.List;
 
 public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCallback
 {
@@ -72,14 +74,40 @@ public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCall
 	@Override
 	public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2, int arg3)
 	{
-	    Parameters parameters;
+
+
+		// BEGIN_INCLUDE (configure_preview
+	//	mCamera = CameraHelper.getDefaultCameraInstance();
+
+		// We need to make sure that our preview and recording video size are supported by the
+		// camera. Query camera to find all the sizes and choose the optimal size given the
+		// dimensions of our preview surface.
+		Camera.Parameters parameters = mCamera.getParameters();
+		List<Camera.Size> mSupportedPreviewSizes = parameters.getSupportedPreviewSizes();
+		List<Camera.Size> mSupportedVideoSizes = null;
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
+			mSupportedVideoSizes = parameters.getSupportedVideoSizes();
+		}
+		Camera.Size optimalSize = CameraHelper.getOptimalVideoSize(mSupportedVideoSizes,
+				mSupportedPreviewSizes, PreviewSizeWidth, PreviewSizeHeight);
+
+		// Use the same size for recording profile.
+		CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
+		profile.videoFrameWidth = optimalSize.width;
+		profile.videoFrameHeight = optimalSize.height;
+
+		// likewise for the camera object itself.
+		parameters.setPreviewSize(profile.videoFrameWidth, profile.videoFrameHeight);
+		mCamera.setParameters(parameters);
+
+	  //  Parameters parameters;  **
        // arg0.setFormat(ImageFormat.NV21);
-	    parameters = mCamera.getParameters();
+	  //  parameters = mCamera.getParameters();     **
 //		parameters.setPreviewFormat(ImageFormat.NV21);
 		// Set the camera preview size
-		parameters.setPreviewSize(PreviewSizeWidth, PreviewSizeHeight);
+	//	parameters.setPreviewSize(PreviewSizeWidth, PreviewSizeHeight);  **
 
-		mCamera.setParameters(parameters);
+	//	mCamera.setParameters(parameters);
 //		parameters.setPreviewSize(1920, 1080);
 		imageFormat = parameters.getPreviewFormat();
 

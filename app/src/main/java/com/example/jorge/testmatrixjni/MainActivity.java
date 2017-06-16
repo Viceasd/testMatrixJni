@@ -36,12 +36,12 @@ public class MainActivity extends Activity {
     private Button btn_grabar;
 //    private int PreviewSizeWidth = 2560;
 //    private int PreviewSizeHeight = 1440;
-//    private int PreviewSizeWidth = 1920;
-//    private int PreviewSizeHeight = 1080;
+    private int PreviewSizeWidth = 1920;
+    private int PreviewSizeHeight = 1080;
 //    private int PreviewSizeWidth = 640;
 //    private int PreviewSizeHeight = 480;
-    private int PreviewSizeWidth = 720;
-    private int PreviewSizeHeight = 405;
+//    private int PreviewSizeWidth = 720;
+//    private int PreviewSizeHeight = 405;
     private MediaRecorder mrec;
     private SurfaceView camView;
     private SurfaceHolder camHolder;
