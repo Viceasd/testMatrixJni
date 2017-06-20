@@ -38,10 +38,12 @@ public class MainActivity extends Activity {
 //    private int PreviewSizeHeight = 1440;
 //    private int PreviewSizeWidth = 1920;
 //    private int PreviewSizeHeight = 1080;
-    private int PreviewSizeWidth = 640;
-    private int PreviewSizeHeight = 480;
+//    private int PreviewSizeWidth = 640;
+//    private int PreviewSizeHeight = 480;
 //    private int PreviewSizeWidth = 720;
 //    private int PreviewSizeHeight = 405;
+    private int PreviewSizeWidth = 1280;
+    private int PreviewSizeHeight = 1440;
     private MediaRecorder mrec;
     private SurfaceView camView;
     private SurfaceHolder camHolder;
@@ -52,7 +54,7 @@ public class MainActivity extends Activity {
     private MediaRecorder mMediaRecorder;
     private static final String TAG = "Recorder";
     private File mOutputFile;
-    private Camera mCamera;
+    private Camera mCamera2;
 
 
     @Override
@@ -199,16 +201,7 @@ public class MainActivity extends Activity {
         PreviewSizeHeight =(int)( width * 0.5625);
     }
 
-    protected void onPause()
-    {
-        if ( camPreview != null) {
-            camPreview.onPause();
-            mrec.release();
-            mrec.reset();
-            mrec.release();
-        }
-        super.onPause();
-    }
+
 
     /**
      * A native method that is implemented by the 'native-lib' native library,
@@ -236,7 +229,7 @@ public class MainActivity extends Activity {
                 mOutputFile.delete();
             }
             releaseMediaRecorder(); // release the MediaRecorder object
-            mCamera.lock();         // take camera access back from MediaRecorder
+            mCamera2.lock();         // take camera access back from MediaRecorder
 
             // inform the user that recording has stopped
             setCaptureButtonText("Capture");
@@ -257,25 +250,8 @@ public class MainActivity extends Activity {
     private void setCaptureButtonText(String title) {
         btn_grabar.setText(title);
     }
-    private void releaseMediaRecorder(){
-        if (mMediaRecorder != null) {
-            // clear recorder configuration
-            mMediaRecorder.reset();
-            // release the recorder object
-            mMediaRecorder.release();
-            mMediaRecorder = null;
-            // Lock camera for later use i.e taking it back from MediaRecorder.
-            // MediaRecorder doesn't need it anymore and we will release it if the activity pauses.
-            mCamera.lock();
-        }
-    }
-    private void releaseCamera(){
-        if (mCamera != null){
-            // release the camera for other applications
-            mCamera.release();
-            mCamera = null;
-        }
-    }
+
+
     class MediaPrepareTask extends AsyncTask<Void, Void, Boolean> {
 
         @Override
@@ -309,12 +285,12 @@ public class MainActivity extends Activity {
     private boolean prepareVideoRecorder(){
 
         // BEGIN_INCLUDE (configure_preview
-        mCamera = CameraHelper.getDefaultCameraInstance();
+        mCamera2 = CameraHelper.getDefaultCameraInstance();
 
         // We need to make sure that our preview and recording video size are supported by the
         // camera. Query camera to find all the sizes and choose the optimal size given the
         // dimensions of our preview surface.
-        Camera.Parameters parameters = mCamera.getParameters();
+        Camera.Parameters parameters = mCamera2.getParameters();
         List<Camera.Size> mSupportedPreviewSizes = parameters.getSupportedPreviewSizes();
         List<Camera.Size> mSupportedVideoSizes = parameters.getSupportedVideoSizes();
         Camera.Size optimalSize = CameraHelper.getOptimalVideoSize(mSupportedVideoSizes,
@@ -327,11 +303,11 @@ public class MainActivity extends Activity {
 
         // likewise for the camera object itself.
         parameters.setPreviewSize(profile.videoFrameWidth, profile.videoFrameHeight);
-        mCamera.setParameters(parameters);
+        mCamera2.setParameters(parameters);
         try {
             // Requires API level 11+, For backward compatibility use {@link setPreviewDisplay}
             // with {@link SurfaceView}
-            mCamera.setPreviewDisplay(camView.getHolder());
+            mCamera2.setPreviewDisplay(camView.getHolder());
         } catch (IOException e) {
             Log.e(TAG, "Surface texture is unavailable or unsuitable" + e.getMessage());
             return false;
@@ -343,9 +319,9 @@ public class MainActivity extends Activity {
         mMediaRecorder = new MediaRecorder();
 
         // Step 1: Unlock and set camera to MediaRecorder
-        mCamera.unlock();
-        mMediaRecorder.setPreviewDisplay(camHolder.getSurface());
-       // mMediaRecorder.setCamera(camView.getHolder());
+        mCamera2.unlock();
+        //mMediaRecorder.setPreviewDisplay(camHolder.getSurface());
+        mMediaRecorder.setCamera(mCamera2);
 
         // Step 2: Set sources
 
@@ -392,7 +368,7 @@ public class MainActivity extends Activity {
                 mOutputFile.delete();
             }
             releaseMediaRecorder(); // release the MediaRecorder object
-            mCamera.lock();         // take camera access back from MediaRecorder
+            mCamera2.lock();         // take camera access back from MediaRecorder
 
             // inform the user that recording has stopped
             setCaptureButtonText("Capture");
@@ -408,6 +384,41 @@ public class MainActivity extends Activity {
 
             // END_INCLUDE(prepare_start_media_recorder)
 
+        }
+    }
+
+
+    @Override
+    protected void onPause() {
+        if ( camPreview != null) {
+            camPreview.onPause();
+
+        }
+        super.onPause();
+        // if we are using MediaRecorder, release it first
+        releaseMediaRecorder();
+        // release the camera immediately on pause event
+        releaseCamera();
+    }
+
+    private void releaseMediaRecorder(){
+        if (mMediaRecorder != null) {
+            // clear recorder configuration
+            mMediaRecorder.reset();
+            // release the recorder object
+            mMediaRecorder.release();
+            mMediaRecorder = null;
+            // Lock camera for later use i.e taking it back from MediaRecorder.
+            // MediaRecorder doesn't need it anymore and we will release it if the activity pauses.
+            mCamera2.lock();
+        }
+    }
+
+    private void releaseCamera(){
+        if (mCamera2 != null){
+            // release the camera for other applications
+            mCamera2.release();
+            mCamera2 = null;
         }
     }
 }
