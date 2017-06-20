@@ -34,14 +34,14 @@ public class MainActivity extends Activity {
     private ImageView MyCameraPreview = null;
     private FrameLayout mainLayout;
     private Button btn_grabar;
-//    private int PreviewSizeWidth = 2560;
-//    private int PreviewSizeHeight = 1440;
+    private int PreviewSizeWidth = 2560;
+    private int PreviewSizeHeight = 1440;
 //    private int PreviewSizeWidth = 1920;
 ////    private int PreviewSizeHeight = 1080;
 //    private int PreviewSizeWidth = 640;
 //    private int PreviewSizeHeight = 480;
-    private int PreviewSizeWidth = 480;
-    private int PreviewSizeHeight = 640;
+//    private int PreviewSizeWidth = 1080;
+//    private int PreviewSizeHeight= 1920;
 
     private MediaRecorder mrec;
     private SurfaceView camView;
@@ -307,7 +307,7 @@ public class MainActivity extends Activity {
         try {
             // Requires API level 11+, For backward compatibility use {@link setPreviewDisplay}
             // with {@link SurfaceView}
-            mCamera2.setPreviewDisplay(camView.getHolder());
+            mCamera2.setPreviewDisplay(camHolder);
         } catch (IOException e) {
             Log.e(TAG, "Surface texture is unavailable or unsuitable" + e.getMessage());
             return false;
@@ -326,7 +326,7 @@ public class MainActivity extends Activity {
         // Step 2: Set sources
 
         mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT );
-        mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+        mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
 
         // Step 3: Set a CamcorderProfile (requires API Level 8 or higher)
         mMediaRecorder.setProfile(profile);
