@@ -103,15 +103,15 @@ public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCall
 
 
 	    Parameters parameters; // **
-       // arg0.setFormat(ImageFormat.NV21);
+//       // arg0.setFormat(ImageFormat.NV21);
 	    parameters = mCamera.getParameters();  //   **
-//		parameters.setPreviewFormat(ImageFormat.NV21);
-		// Set the camera preview size
-	//	parameters.setPreviewSize(PreviewSizeWidth, PreviewSizeHeight);  **
+////		parameters.setPreviewFormat(ImageFormat.NV21);
+//		// Set the camera preview size
+		parameters.setPreviewSize(PreviewSizeWidth, PreviewSizeHeight); // **
 
 	//	mCamera.setParameters(parameters);
 	//	parameters.setPreviewSize(640, 480);
-		parameters.setPreviewSize(1280, 1440);
+	//	parameters.setPreviewSize(2560, 1440);
 		imageFormat = parameters.getPreviewFormat();
 
 

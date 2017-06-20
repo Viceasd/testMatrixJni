@@ -37,13 +37,12 @@ public class MainActivity extends Activity {
 //    private int PreviewSizeWidth = 2560;
 //    private int PreviewSizeHeight = 1440;
 //    private int PreviewSizeWidth = 1920;
-//    private int PreviewSizeHeight = 1080;
+////    private int PreviewSizeHeight = 1080;
 //    private int PreviewSizeWidth = 640;
 //    private int PreviewSizeHeight = 480;
-//    private int PreviewSizeWidth = 720;
-//    private int PreviewSizeHeight = 405;
-    private int PreviewSizeWidth = 1280;
-    private int PreviewSizeHeight = 1440;
+    private int PreviewSizeWidth = 480;
+    private int PreviewSizeHeight = 640;
+
     private MediaRecorder mrec;
     private SurfaceView camView;
     private SurfaceHolder camHolder;
@@ -68,7 +67,7 @@ public class MainActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.main);
 
-        anchoYAltoPantalla();
+      //  anchoYAltoPantalla();
 
         //
         // Create my camera preview
@@ -198,7 +197,8 @@ public class MainActivity extends Activity {
         int height = metrics.heightPixels;
 
         PreviewSizeWidth = width;
-        PreviewSizeHeight =(int)( width * 0.5625);
+        //PreviewSizeHeight =(int)( width * 0.5625);
+        PreviewSizeHeight =height;
     }
 
 
