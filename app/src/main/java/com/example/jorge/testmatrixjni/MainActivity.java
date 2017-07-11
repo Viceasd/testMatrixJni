@@ -78,6 +78,8 @@ public class MainActivity extends Activity {
         camHolder = camView.getHolder();
         camPreview = new CameraPreview(PreviewSizeWidth, PreviewSizeHeight, MyCameraPreview);
 
+
+
         camHolder.addCallback(camPreview);
         camHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
@@ -87,91 +89,16 @@ public class MainActivity extends Activity {
 
         final Toast toast = Toast.makeText(this, "width: "+PreviewSizeWidth+" height: "+PreviewSizeHeight, Toast.LENGTH_LONG);
 
-//        file = new File(getApplicationContext().getFilesDir(), "matrix_view");
-//        file = new File(Environment.getExternalStorageDirectory() + File.separator
-//                + Environment.DIRECTORY_DCIM + File.separator + "FILE_NAME");
-//        file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + File.separator+ "test.mp4");
 
-//        file=new File("/mnt/sdcard/test.mp4");
-//        file = new File(Environment.getExternalStorageDirectory(), "Notes");
-//        mrec = new MediaRecorder();
-//        mrec.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-//        mrec.setAudioSource(MediaRecorder.AudioSource.MIC);
-//        mrec.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-//        mrec.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
-//        mrec.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-//        mrec.setVideoFrameRate(10);
-//        mrec.setMaxDuration(10000);
-//        mrec.setVideoSize(PreviewSizeWidth, PreviewSizeHeight);
-//        mrec.setOutputFile(file.getPath());
-//        mrec.setPreviewDisplay(camHolder.getSurface());
-//        if (mrec != null) {
-//
-//            try {
-//                mrec.prepare();
-//
-//            } catch (IllegalStateException e) {
-//                Log.e("IllegalStateException", e.toString());
-//            } catch (IOException e) {
-//                Log.e("IOException", e.toString());
-//            }
-//        }
 
         btn_grabar.setOnClickListener(new View.OnClickListener() {
            public void onClick(View v) {
 //               alHacerClickBoton();
-               onCaptureClick(v);
+           //    onCaptureClick(v);
+               alHacerClickBoton2(v);
+
            }
         });
-
-//        btn_grabar.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v) {
-//                if (!grabando){
-//                    btn_grabar.setText("Pausar");
-//                    grabando = true;
-//                    // Perform action on click
-////                    File file = new File(getApplicationContext().getFilesDir(), "matrix_view");
-////                    mrec = new MediaRecorder();
-////
-////                    mrec.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-////                    mrec.setPreviewDisplay(camHolder.getSurface());
-////                    mrec.setAudioSource(MediaRecorder.AudioSource.MIC);
-////                    mrec.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-////                    mrec.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
-////                    mrec.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-////                    mrec.setVideoSize(PreviewSizeWidth, PreviewSizeHeight);
-//                    //mrec.setPreviewDisplay(camHolder.getSurface());
-//
-////                    mrec.setOutputFile(file.getPath());
-////                    try {
-////                        mrec.prepare();
-//                        mrec.start();
-////                    } catch (Exception e) {
-////                        e.printStackTrace();
-////                    }
-//                    toast.show();
-//
-//                }
-//                else{
-//                    btn_grabar.setText("Grabar");
-//                    grabando = false;
-//                    try{
-//                        mrec.stop();
-//                        mrec.release();
-//                    }catch (Exception e){
-//                        e.printStackTrace();
-//                    }
-//
-//                }
-//
-//
-//
-//
-//
-//            }
-//        });
-
-
 
     }
     @TargetApi(11)
@@ -309,6 +236,7 @@ public class MainActivity extends Activity {
             // with {@link SurfaceView}
             mCamera2.setPreviewDisplay(camHolder);
         } catch (IOException e) {
+            e.printStackTrace();
             Log.e(TAG, "Surface texture is unavailable or unsuitable" + e.getMessage());
             return false;
         }
@@ -320,13 +248,15 @@ public class MainActivity extends Activity {
 
         // Step 1: Unlock and set camera to MediaRecorder
         mCamera2.unlock();
-        //mMediaRecorder.setPreviewDisplay(camHolder.getSurface());
-        mMediaRecorder.setCamera(mCamera2);
+        mMediaRecorder.setPreviewDisplay(camHolder.getSurface());
+
+
+        // mMediaRecorder.setCamera(mCamera2);
 
         // Step 2: Set sources
 
         mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT );
-        mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
+        mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.DEFAULT);
 
         // Step 3: Set a CamcorderProfile (requires API Level 8 or higher)
         mMediaRecorder.setProfile(profile);
@@ -343,12 +273,17 @@ public class MainActivity extends Activity {
         try {
             mMediaRecorder.prepare();
         } catch (IllegalStateException e) {
+            e.printStackTrace();
             Log.d(TAG, "IllegalStateException preparing MediaRecorder: " + e.getMessage());
             releaseMediaRecorder();
             return false;
         } catch (IOException e) {
+            e.printStackTrace();
             Log.d(TAG, "IOException preparing MediaRecorder: " + e.getMessage());
             releaseMediaRecorder();
+            return false;
+        }catch(Exception e) {
+            e.printStackTrace();
             return false;
         }
         return true;
@@ -363,6 +298,7 @@ public class MainActivity extends Activity {
             } catch (RuntimeException e) {
                 // RuntimeException is thrown when stop() is called immediately after start().
                 // In this case the output file is not properly constructed ans should be deleted.
+                e.printStackTrace();
                 Log.d(TAG, "RuntimeException: stop() is called immediately after start()");
                 //noinspection ResultOfMethodCallIgnored
                 mOutputFile.delete();
@@ -421,4 +357,45 @@ public class MainActivity extends Activity {
             mCamera2 = null;
         }
     }
+    public void alHacerClickBoton2(View view) {
+        if (isRecording) {
+            // BEGIN_INCLUDE(stop_release_media_recorder)
+
+            // stop recording and release camera
+            try {
+                camPreview.StopMedia();
+             //   mMediaRecorder.stop();  // stop the recording
+            } catch (RuntimeException e) {
+                // RuntimeException is thrown when stop() is called immediately after start().
+                // In this case the output file is not properly constructed ans should be deleted.
+                e.printStackTrace();
+                Log.d(TAG, "RuntimeException: stop() is called immediately after start()");
+                //noinspection ResultOfMethodCallIgnored
+           //     mOutputFile.delete();
+            }
+          //  releaseMediaRecorder(); // release the MediaRecorder object
+         //   mCamera2.lock();         // take camera access back from MediaRecorder
+
+            // inform the user that recording has stopped
+            setCaptureButtonText("Capture");
+            isRecording = false;
+        //    releaseCamera();
+            // END_INCLUDE(stop_release_media_recorder)
+
+        } else {
+            mOutputFile = CameraHelper.getOutputMediaFile(CameraHelper.MEDIA_TYPE_VIDEO);
+            if (mOutputFile == null) {
+
+            }
+            camPreview.StartRecording(mOutputFile.getPath(), camHolder);
+
+            // BEGIN_INCLUDE(prepare_start_media_recorder)
+
+         //   new MediaPrepareTask().execute(null, null, null);
+
+            // END_INCLUDE(prepare_start_media_recorder)
+
+        }
+    }
+
 }

@@ -8,12 +8,16 @@ import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
 import android.media.CamcorderProfile;
+import android.media.MediaRecorder;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.Surface;
 import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.widget.ImageView;
 
+import java.io.FileDescriptor;
 import java.io.IOException;
 import java.util.List;
 
@@ -29,6 +33,9 @@ public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCall
  	private int PreviewSizeHeight;
  	private boolean bProcessing = false;
 	public boolean pasaUnaVez = false;
+	private MediaRecorder myMediaRecorder = null;
+	private SurfaceView	myCameraSView;
+	private SurfaceHolder myCamSHolder;
 
  	Handler mHandler = new Handler(Looper.getMainLooper());
 
@@ -119,6 +126,9 @@ public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCall
 //
 //		mCamera.startPreview();
 
+		//esto es nuevo   *1*1*1
+		PrepareMedia(PreviewSizeWidth, PreviewSizeHeight);
+
 		Parameters parameters;
 
 		parameters = mCamera.getParameters();
@@ -140,6 +150,7 @@ public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCall
 		try
 		{
 			// If did not set the SurfaceHolder, the preview area will be black.
+
 			mCamera.setPreviewDisplay(arg0);
 			mCamera.setPreviewCallback(this);
 		}
@@ -159,11 +170,6 @@ public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCall
 		mCamera = null;
 	}
 
-	//
-	// Native JNI
-	//
-
-
 
     private Runnable DoImageProcessing = new Runnable()
     {
@@ -171,40 +177,88 @@ public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCall
         {
     		Log.i("MyRealTimeImessing", "DoImageProcessing():");
 
-//			Log.i("frameData",String.valueOf(FrameData[0]));
-//			Log.i("pixels",String.valueOf(pixels[0]));
-            String salidaPixeles="";
-
-//			for (int i = 0; i<=30;i++){
-//				salidaPixeles = salidaPixeles+String.valueOf(pixels[i])+",";
-//
-//			}
-//			Log.i("pixels: ",salidaPixeles);
-//			for (int i = 0; i<=30;i++){
-//				salidaPixeles = salidaPixeles+String.valueOf(FrameData[i])+",";
-//
-//			}
-//			Log.i("FrameData: ",salidaPixeles);
-
-//            Log.i("largo FrameData", String.valueOf(FrameData.length)); // 3110400
-//			Log.i("largo pixels", String.valueOf(pixels.length)); // 3.686.400
         	bProcessing = true;
             stringFromJNI(PreviewSizeWidth, PreviewSizeHeight, FrameData, pixels);
-			salidaPixeles="";
-//			for (int i = 0; i<=155;i++){
-//				salidaPixeles = salidaPixeles+String.valueOf(pixels[i])+",";
-//
-//			}
-//			Log.i("pixels1",salidaPixeles);
-//			for (int i = 0; i<=255;i++){
-//				salidaPixeles = salidaPixeles+String.valueOf(FrameData[i])+",";
-//
-//			}
-//			Log.i("FrameData1 ",salidaPixeles);
 
 			bitmap.setPixels(pixels, 0, PreviewSizeWidth, 0, 0, PreviewSizeWidth, PreviewSizeHeight);
 			MyCameraPreview.setImageBitmap(bitmap);
 			bProcessing = false;
         }
     };
-   }
+
+
+	public void PrepareMedia(int wid, int hei) {
+		myMediaRecorder =  new MediaRecorder();
+	//	mCamera.stopPreview();
+	//	mCamera.unlock();
+
+		myMediaRecorder.setCamera(mCamera);
+		myMediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
+		myMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+
+		CamcorderProfile targetProfile = CamcorderProfile.get(CamcorderProfile.QUALITY_LOW);
+		targetProfile.quality = 60;
+		targetProfile.videoFrameWidth = wid;
+		targetProfile.videoFrameHeight = hei;
+		targetProfile.videoFrameRate = 30;
+		targetProfile.videoCodec = MediaRecorder.VideoEncoder.H264;
+		targetProfile.audioCodec = MediaRecorder.AudioEncoder.AMR_NB;
+		targetProfile.fileFormat = MediaRecorder.OutputFormat.MPEG_4;
+		myMediaRecorder.setProfile(targetProfile);
+	}
+
+	private boolean realyStart(SurfaceHolder sh) {
+
+		myMediaRecorder.setPreviewDisplay(sh.getSurface());
+		try {
+			myMediaRecorder.prepare();
+		} catch (IllegalStateException e) {
+			releaseMediaRecorder();
+			Log.d("TEAONLY", "JAVA:  camera prepare illegal error");
+			return false;
+		} catch (IOException e) {
+			releaseMediaRecorder();
+			Log.d("TEAONLY", "JAVA:  camera prepare io error");
+			return false;
+		}
+
+		try {
+			myMediaRecorder.start();
+		} catch( Exception e) {
+			releaseMediaRecorder();
+			Log.d("TEAONLY", "JAVA:  camera start error");
+			return false;
+		}
+
+		return true;
+	}
+
+
+
+	public boolean StartRecording(String targetFile, SurfaceHolder sh) {
+
+		myMediaRecorder.setOutputFile(targetFile);
+		myMediaRecorder.setMaxDuration(7200000); 	// Set max duration 2 hours
+		myMediaRecorder.setMaxFileSize(400000000); // Set max file size 4G
+
+		return realyStart(sh);
+	}
+
+	public void StopMedia() {
+		myMediaRecorder.stop();
+		releaseMediaRecorder();
+	}
+
+	private void releaseMediaRecorder(){
+		if (myMediaRecorder != null) {
+			myMediaRecorder.reset();   // clear recorder configuration
+			myMediaRecorder.release(); // release the recorder object
+			myMediaRecorder = null;
+			mCamera.lock();           // lock camera for later use
+			mCamera.startPreview();
+		}
+		myMediaRecorder = null;
+	}
+
+
+}
