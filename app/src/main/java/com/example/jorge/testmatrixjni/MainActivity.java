@@ -385,10 +385,11 @@ public class MainActivity extends Activity {
         } else {
             mOutputFile = CameraHelper.getOutputMediaFile(CameraHelper.MEDIA_TYPE_VIDEO);
             if (mOutputFile == null) {
-
+                Log.i("mOutputFile", "nulo");
             }
-            camPreview.StartRecording(mOutputFile.getPath(), camHolder);
-
+            camPreview.StartRecording(mOutputFile.getPath().toString(), camHolder);
+            isRecording = true;
+            setCaptureButtonText("Grabando");
             // BEGIN_INCLUDE(prepare_start_media_recorder)
 
          //   new MediaPrepareTask().execute(null, null, null);

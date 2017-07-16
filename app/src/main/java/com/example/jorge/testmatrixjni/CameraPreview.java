@@ -52,6 +52,7 @@ public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCall
 	@Override
 	public void onPreviewFrame(byte[] arg0, Camera arg1)
 	{
+//		Log.i("onPreviewFrame", "at Fist():");
 		// At preview mode, the frame data will push to here.
 		if (imageFormat == ImageFormat.NV21)
         {
@@ -81,6 +82,7 @@ public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCall
 	@Override
 	public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2, int arg3)
 	{
+		Log.i("surfaceChanged", "at Fist():");
 
 
 //		// BEGIN_INCLUDE (configure_preview
@@ -127,11 +129,13 @@ public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCall
 //		mCamera.startPreview();
 
 		//esto es nuevo   *1*1*1
-		PrepareMedia(PreviewSizeWidth, PreviewSizeHeight);
+//		PrepareMedia(PreviewSizeWidth, PreviewSizeHeight);
 
 		Parameters parameters;
 
 		parameters = mCamera.getParameters();
+
+
 		// Set the camera preview size
 		parameters.setPreviewSize(PreviewSizeWidth, PreviewSizeHeight);
 //      parameters.setPreviewSize(1920, 1080);
@@ -140,6 +144,7 @@ public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCall
 		mCamera.setParameters(parameters);
 
 		mCamera.startPreview();
+		PrepareMedia(PreviewSizeWidth, PreviewSizeHeight);
 	}
 
 
@@ -175,7 +180,7 @@ public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCall
     {
         public void run()
         {
-    		Log.i("MyRealTimeImessing", "DoImageProcessing():");
+
 
         	bProcessing = true;
             stringFromJNI(PreviewSizeWidth, PreviewSizeHeight, FrameData, pixels);
@@ -193,32 +198,34 @@ public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCall
 	//	mCamera.unlock();
 
 		myMediaRecorder.setCamera(mCamera);
-		myMediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
-		myMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+        myMediaRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT );
+        myMediaRecorder.setVideoSource(MediaRecorder.VideoSource.DEFAULT);
+//		myMediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
+//		myMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
 
 		CamcorderProfile targetProfile = CamcorderProfile.get(CamcorderProfile.QUALITY_LOW);
 		targetProfile.quality = 60;
 		targetProfile.videoFrameWidth = wid;
 		targetProfile.videoFrameHeight = hei;
 		targetProfile.videoFrameRate = 30;
-		targetProfile.videoCodec = MediaRecorder.VideoEncoder.H264;
+		targetProfile.videoCodec = MediaRecorder.VideoEncoder.MPEG_4_SP;
 		targetProfile.audioCodec = MediaRecorder.AudioEncoder.AMR_NB;
 		targetProfile.fileFormat = MediaRecorder.OutputFormat.MPEG_4;
 		myMediaRecorder.setProfile(targetProfile);
 	}
 
 	private boolean realyStart(SurfaceHolder sh) {
-
+		mCamera.unlock();
 		myMediaRecorder.setPreviewDisplay(sh.getSurface());
 		try {
 			myMediaRecorder.prepare();
 		} catch (IllegalStateException e) {
 			releaseMediaRecorder();
-			Log.d("TEAONLY", "JAVA:  camera prepare illegal error");
+			Log.e("TEAONLY", "JAVA:  camera prepare illegal error",e);
 			return false;
 		} catch (IOException e) {
 			releaseMediaRecorder();
-			Log.d("TEAONLY", "JAVA:  camera prepare io error");
+			Log.e("TEAONLY", "JAVA:  camera prepare io error",e);
 			return false;
 		}
 
@@ -226,7 +233,8 @@ public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCall
 			myMediaRecorder.start();
 		} catch( Exception e) {
 			releaseMediaRecorder();
-			Log.d("TEAONLY", "JAVA:  camera start error");
+			e.printStackTrace();
+			Log.e("TEAONLY", "JAVA:  camera start error",e);
 			return false;
 		}
 
@@ -255,7 +263,7 @@ public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCall
 			myMediaRecorder.release(); // release the recorder object
 			myMediaRecorder = null;
 			mCamera.lock();           // lock camera for later use
-			mCamera.startPreview();
+		//	mCamera.startPreview();
 		}
 		myMediaRecorder = null;
 	}
